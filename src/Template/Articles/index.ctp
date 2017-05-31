@@ -2,7 +2,7 @@
 
 <h1>Blog articles</h1>
 
-<?= $this->Flash->render() ?>
+
 
 <p><?= $this->Html->link("Add Article", ['action' => 'add']) ?></p>
 

@@ -13,8 +13,6 @@ class ArticlesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        $this->loadComponent('Flash');
     }
 
     /**
@@ -66,6 +64,10 @@ class ArticlesController extends AppController
         }
         $this->set(compact('article'));
         $this->set('_serialize', ['article']);
+
+        // choose one category for an article
+        $categories = $this->Articles->Categories->find('treeList');
+        $this->set(compact('categories'));
     }
 
     /**
