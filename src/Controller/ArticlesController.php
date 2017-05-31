@@ -45,6 +45,24 @@ class ArticlesController extends AppController
         $this->set('_serialize', ['article']);
     }
 
+    public function isAuthorized($user)
+    {
+        // All registered users can add articles
+        if ($this->request->getParam('action') === 'add') {
+            return true;
+        }
+
+        // The owner of an article can edit and delete it
+        if (in_array($this->request->getParam('action'), ['edit', 'delete'])) {
+            $articleId = (int)$this->request->getParam('pass.0');
+            if ($this->Articles->isOwnedBy($articleId, $user['id'])) {
+                return true;
+            }
+        }
+
+        return parent::isAuthorized($user);
+    }
+
     /**
      * Add method
      *
@@ -55,6 +73,10 @@ class ArticlesController extends AppController
         $article = $this->Articles->newEntity();
         if ($this->request->is('post')) {
             $article = $this->Articles->patchEntity($article, $this->request->getData());
+
+            // store the currently logged in user as a reference for the created article
+            $article->user_id = $this->Auth->user('id');
+
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('The article has been saved.'));
 
@@ -65,7 +87,7 @@ class ArticlesController extends AppController
         $this->set(compact('article'));
         $this->set('_serialize', ['article']);
 
-        // choose one category for an article
+        // the categories list to be able to choose one category for an article
         $categories = $this->Articles->Categories->find('treeList');
         $this->set(compact('categories'));
     }
